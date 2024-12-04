@@ -3,6 +3,8 @@ from flask import current_app, jsonify
 import json
 import requests
 import re
+import cv2
+import pymupdf
 
 def log_http_response(response):
     logging.info(f"Status: {response.status_code}")
@@ -22,8 +24,46 @@ def get_text_message_input(recipient, text):
     )
 
 
+def variance_of_laplacian(image):
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    height, width, _ = gray.shape
+    if height > width:
+        resized = cv2.resize(gray, image_size_portrait)
+    else:
+        resized = cv2.resize(gray, image_size_landscape)
+    return cv2.Laplacian(resized, cv2.CV_64F).var()
+
+def is_blur(image):
+    fm = variance_of_laplacian(image)
+    return True if fm >= blur_threshold else False
+
 def generate_response(response):
-    # Return text in uppercase
+#     # WhatsApp logic to get media
+#     #####
+#     # If it is a PDF file
+#     if(False):
+#         ##### Load the document
+#         doc = file
+#         blur_pages = []
+#         for i in range(0, doc.page_count()):
+#             page = doc.load_page(i)
+#             pixmap = page.get_pixmap(dpi=image_dpi)
+#             image = pixmap.tobytes()
+#             if is_blur(image):
+#                 blur_pages.append(i+1)
+#         if blur_pages:
+#             return "Dokumen yang anda kirim memiliki blur pada halaman " + str(blur_pages)
+#        else:
+#             return "Dokumen yang anda kirim tidak memiliki blur"
+#     # If it is a JPEG or PNG file
+#     else:
+#         ##### Load the image
+#         image = file
+#         if is_blur(image):
+#             return "Gambar anda memiliki blur"
+#         else:
+#             return "Gambar anda tidak memiliki blur"
+
     return response.upper()
 
 
@@ -73,6 +113,7 @@ def process_text_for_whatsapp(text):
 
 
 def process_whatsapp_message(body):
+    logging.info(body)
     wa_id = body["entry"][0]["changes"][0]["value"]["contacts"][0]["wa_id"]
     name = body["entry"][0]["changes"][0]["value"]["contacts"][0]["profile"]["name"]
 
