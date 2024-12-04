@@ -1,19 +1,15 @@
 import sys
 import os
-from dotenv import load_dotenv
 import logging
 
 
 def load_configurations(app):
-    load_dotenv()
-    app.config["ACCESS_TOKEN"] = os.getenv("ACCESS_TOKEN")
-    app.config["YOUR_PHONE_NUMBER"] = os.getenv("YOUR_PHONE_NUMBER")
-    app.config["APP_ID"] = os.getenv("APP_ID")
-    app.config["APP_SECRET"] = os.getenv("APP_SECRET")
-    app.config["RECIPIENT_WAID"] = os.getenv("RECIPIENT_WAID")
-    app.config["VERSION"] = os.getenv("VERSION")
-    app.config["PHONE_NUMBER_ID"] = os.getenv("PHONE_NUMBER_ID")
-    app.config["VERIFY_TOKEN"] = os.getenv("VERIFY_TOKEN")
+    app.config["ACCESS_TOKEN"] = "EAAVkCDn8mhwBOyIW5pZCXTEVSYcg7U7ELHdnP3zOsvpUXG908L4sUoSJnxlt69mSx0CmaoiqZBLJ8eB688JminXZAhCuCGbZAR48jdhI39XZBimYCFye7aDbZAuTlTisLtRnhQvhhl6JZCQZBeCNzcBgEFUOU6ueWVFWJoqIIFZApMlTKEBim5WKGk340V7iHQSUWWTzuWsHFBy3NGWQpN8vcOMndnTMZD"
+    app.config["APP_ID"] = "1517361378925084"
+    app.config["APP_SECRET"] = "ba1fa5a0d87d3161d6a6556c71252345"
+    app.config["RECIPIENT_WAID"] = "6281278989888"
+    app.config["VERSION"] = "v18.0"
+    app.config["PHONE_NUMBER_ID"] = "520078131183551"
 
 
 def configure_logging():
