@@ -1,7 +1,5 @@
 import sys
-import os
 import logging
-
 
 def load_configurations(app):
     app.config["ACCESS_TOKEN"] = "EAAVkCDn8mhwBOyIW5pZCXTEVSYcg7U7ELHdnP3zOsvpUXG908L4sUoSJnxlt69mSx0CmaoiqZBLJ8eB688JminXZAhCuCGbZAR48jdhI39XZBimYCFye7aDbZAuTlTisLtRnhQvhhl6JZCQZBeCNzcBgEFUOU6ueWVFWJoqIIFZApMlTKEBim5WKGk340V7iHQSUWWTzuWsHFBy3NGWQpN8vcOMndnTMZD"
@@ -10,7 +8,6 @@ def load_configurations(app):
     app.config["RECIPIENT_WAID"] = "6281278989888"
     app.config["VERSION"] = "v18.0"
     app.config["PHONE_NUMBER_ID"] = "520078131183551"
-
 
 def configure_logging():
     logging.basicConfig(

@@ -5,7 +5,6 @@ import logging
 from api.config import load_configurations, configure_logging
 from .views import webhook_blueprint
 
-
 def create_app():
     app = Flask(__name__)
 

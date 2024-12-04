@@ -4,7 +4,6 @@ import logging
 import hashlib
 import hmac
 
-
 def validate_signature(payload, signature):
     """
     Validate the incoming payload's signature against our expected signature
