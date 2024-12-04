@@ -8,6 +8,7 @@ def load_configurations(app):
     app.config["RECIPIENT_WAID"] = "6281278989888"
     app.config["VERSION"] = "v18.0"
     app.config["PHONE_NUMBER_ID"] = "520078131183551"
+    app.config["VERIFY_TOKEN"] = "jakeisadog"
 
 def configure_logging():
     logging.basicConfig(
