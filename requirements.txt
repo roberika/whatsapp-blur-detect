@@ -1,4 +1,4 @@
-Flask==2.3.3
+Flask==3.1.0
 numpy==1.22.4
 opencv-python-headless==3.4.18.65
 PyMuPDF==1.24.14
