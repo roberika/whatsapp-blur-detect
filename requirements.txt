@@ -1,4 +1,5 @@
 Flask==2.3.3
-opencv-python-headless==4.6.0.66
+numpy==1.22.4
+opencv-python-headless==3.4.18.65
 PyMuPDF==1.24.14
 requests==2.32.3
