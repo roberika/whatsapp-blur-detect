@@ -50,7 +50,7 @@ def generate_response(message):
     return 'I don\'t understand what you\'re saying.'
 
 def identify_blur(media_id):
-    retrieve_media_url(media_id)
+    download_media(media_id)
 #     # If it is a PDF file
 #     if(file_type == 'document'):
 #         req = download_media(media_id)
@@ -134,7 +134,7 @@ def retrieve_media_url(media_id):
         # Process the response as normal
         log_http_response(response)
         logging.info("Media url retrieved")
-        return response
+        return response['url']
 
 
 def send_message(data):
