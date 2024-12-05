@@ -50,10 +50,10 @@ def generate_response(message):
     return 'I don\'t understand what you\'re saying.'
 
 def identify_blur(message):
-    download_media(message, message['from'])
+    download_media(message[message['type']]['id'], message['from'])
 #     # If it is a PDF file
 #     if(file_type == 'document'):
-#         data = download_media(message, message['from']).content
+#         data = download_media(message[message['type']]['id'], message['from']).content
 #         doc = pymupdf.Document(stream=data)
 #         blur_pages = []
 #         for i in range(0, doc.page_count()):
@@ -68,7 +68,7 @@ def identify_blur(message):
 #             return "Dokumen yang anda kirim tidak memiliki blur"
 #     # If it is a JPEG or PNG file
 #     else:
-#         req = download_media(message, message['from'])
+#         req = download_media(message[message['type']]['id'], message['from'])
 #         arr = np.asarray(bytearray(req.read()), dtype=np.uint8)
 #         image = cv2.imdecode(arr, -1)
 #         if is_blur(image):
