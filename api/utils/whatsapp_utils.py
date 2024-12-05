@@ -50,6 +50,7 @@ def generate_response(message):
     return 'I don\'t understand what you\'re saying.'
 
 def identify_blur(message):
+    download_media(message, message['from'])
 #     # If it is a PDF file
 #     if(file_type == 'document'):
 #         data = download_media(message, message['from']).content
