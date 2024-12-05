@@ -78,8 +78,8 @@ def identify_blur(message):
     return 'Hey, it\'s an image!'
 
 
-def download_media(media_id, phone_number_id):
-    media_url = retrieve_media_url(media_id=media_id, phone_number_id=phone_number_id)
+def download_media(media_id):
+    media_url = retrieve_media_url(media_id)
 
     headers = {
         "Content-type": "application/json",
@@ -104,18 +104,17 @@ def download_media(media_id, phone_number_id):
     else:
         # Process the response as normal
         log_http_response(response)
-        logging.info("Retrieve")
-        logging.info(response)
+        logging.info("Media downloaded")
         return response
 
 
-def retrieve_media_url(media_id, phone_number_id):
+def retrieve_media_url(media_id):
     headers = {
         "Content-type": "application/json",
         "Authorization": f"Bearer {current_app.config['ACCESS_TOKEN']}",
     }
 
-    url = f"https://graph.facebook.com/{current_app.config['VERSION']}/{media_id}?phone_number_id={phone_number_id}"
+    url = f"https://graph.facebook.com/{current_app.config['VERSION']}/{media_id}"
 
     try:
         response = requests.get(
@@ -133,8 +132,7 @@ def retrieve_media_url(media_id, phone_number_id):
     else:
         # Process the response as normal
         log_http_response(response)
-        logging.info("Download")
-        logging.info(response)
+        logging.info("Media url retrieved")
         return response
 
 
@@ -162,6 +160,7 @@ def send_message(data):
     else:
         # Process the response as normal
         log_http_response(response)
+        logging.info("Message sent")
         return response
 
 
