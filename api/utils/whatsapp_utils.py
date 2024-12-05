@@ -44,7 +44,7 @@ def is_blur(image):
 
 def generate_response(message):
     if is_valid_image_message(message):
-        return identify_blur(message[message['type']]['id'])
+        return identify_blur(message["image"]['id'])
     if is_valid_text_message(message):
         return message["text"]["body"].upper()
     return 'I don\'t understand what you\'re saying.'
