@@ -4,6 +4,7 @@ import json
 import requests
 import re
 import cv2
+import numpy as np
 import pymupdf
 
 def log_http_response(response):
@@ -43,13 +44,16 @@ def is_blur(image):
 
 def generate_response(message):
     if is_valid_image_message(message):
-        return "Hey it's an image!"
-#     # WhatsApp logic to get media
-#     #####
+        return identify_blur(message)
+    if is_valid_text_message(message):
+        return message["text"]["body"].upper()
+    return 'I don\'t understand what you\'re saying.'
+
+def identify_blur(message):
 #     # If it is a PDF file
-#     if(False):
-#         ##### Load the document
-#         doc = file
+#     if(file_type == 'document'):
+#         data = download_media(message, message['from']).content
+#         doc = pymupdf.Document(stream=data)
 #         blur_pages = []
 #         for i in range(0, doc.page_count()):
 #             page = doc.load_page(i)
@@ -63,17 +67,19 @@ def generate_response(message):
 #             return "Dokumen yang anda kirim tidak memiliki blur"
 #     # If it is a JPEG or PNG file
 #     else:
-#         ##### Load the image
-#         image = file
+#         req = download_media(message, message['from'])
+#         arr = np.asarray(bytearray(req.read()), dtype=np.uint8)
+#         image = cv2.imdecode(arr, -1)
 #         if is_blur(image):
 #             return "Gambar anda memiliki blur"
 #         else:
 #             return "Gambar anda tidak memiliki blur"
+    return 'Hey, it\'s an image!'
 
-    return message["text"]["body"].upper()
 
+def download_media(media_id, phone_number_id):
+    media_url = retrieve_media_url(media_id=media_id, phone_number_id=phone_number_id)
 
-def download_media(media_url):
     headers = {
         "Content-type": "application/json",
         "Authorization": f"Bearer {current_app.config['ACCESS_TOKEN']}",
@@ -87,7 +93,7 @@ def download_media(media_url):
         )  # 10 seconds timeout as an example
         response.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
     except requests.Timeout:
-        logging.error("Timeout occurred while sending message")
+        logging.error("Timeout occurred while downloading media")
         return jsonify({"status": "error", "message": "Request timed out"}), 408
     except (
         requests.RequestException
@@ -98,6 +104,33 @@ def download_media(media_url):
         # Process the response as normal
         log_http_response(response)
         return response
+
+
+def retrieve_media_url(media_id, phone_number_id):
+    headers = {
+        "Content-type": "application/json",
+        "Authorization": f"Bearer {current_app.config['ACCESS_TOKEN']}",
+    }
+
+    url = f"https://graph.facebook.com/{current_app.config['VERSION']}/{media_id}?phone_number_id={phone_number_id}"
+
+    try:
+        response = requests.get(
+            url, headers=headers, timeout=10
+        )  # 10 seconds timeout as an example
+        response.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
+    except requests.Timeout:
+        logging.error("Timeout occurred while retrieving media url")
+        return jsonify({"status": "error", "message": "Request timed out"}), 408
+    except (
+        requests.RequestException
+    ) as e:  # This will catch any general request exception
+        logging.error(f"Request failed due to: {e}")
+        return jsonify({"status": "error", "message": "Failed to retrieve media url"}), 500
+    else:
+        # Process the response as normal
+        log_http_response(response)
+        return response['media_url']
 
 
 def send_message(data):
