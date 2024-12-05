@@ -44,13 +44,13 @@ def is_blur(image):
 
 def generate_response(message):
     if is_valid_image_message(message):
-        return identify_blur(message["image"]['id'])
+        return identify_blur(message["image"]["id"])
     if is_valid_text_message(message):
         return message["text"]["body"].upper()
     return 'I don\'t understand what you\'re saying.'
 
 def identify_blur(media_id):
-    download_media(media_id)
+    retrieve_media_url(media_id)
 #     # If it is a PDF file
 #     if(file_type == 'document'):
 #         req = download_media(media_id)
