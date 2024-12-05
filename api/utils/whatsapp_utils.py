@@ -23,6 +23,10 @@ def get_text_message_input(recipient, text):
         }
     )
 
+image_dpi = 72
+image_size_landscape = (1200, 1600)
+image_size_portrait = (1600, 1200)
+blur_threshold = 100 # for now
 
 def variance_of_laplacian(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -38,6 +42,8 @@ def is_blur(image):
     return True if fm >= blur_threshold else False
 
 def generate_response(response):
+    if 'image' in response[response['type']]['mime_type']:
+        return "Hey it's an image!"
 #     # WhatsApp logic to get media
 #     #####
 #     # If it is a PDF file
@@ -65,6 +71,33 @@ def generate_response(response):
 #             return "Gambar anda tidak memiliki blur"
 
     return response.upper()
+
+
+def download_media(media_url):
+    headers = {
+        "Content-type": "application/json",
+        "Authorization": f"Bearer {current_app.config['ACCESS_TOKEN']}",
+    }
+
+    url = f"https://graph.facebook.com/{current_app.config['VERSION']}/{media_url}"
+
+    try:
+        response = requests.get(
+            url, headers=headers, timeout=10
+        )  # 10 seconds timeout as an example
+        response.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
+    except requests.Timeout:
+        logging.error("Timeout occurred while sending message")
+        return jsonify({"status": "error", "message": "Request timed out"}), 408
+    except (
+        requests.RequestException
+    ) as e:  # This will catch any general request exception
+        logging.error(f"Request failed due to: {e}")
+        return jsonify({"status": "error", "message": "Failed to download media"}), 500
+    else:
+        # Process the response as normal
+        log_http_response(response)
+        return response
 
 
 def send_message(data):

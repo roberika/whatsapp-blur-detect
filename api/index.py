@@ -16,10 +16,6 @@ def create_app():
     return app
 
 app = create_app()
-image_dpi = 72
-image_size_landscape = (1200, 1600)
-image_size_portrait = (1600, 1200)
-blur_threshold = 100 # for now
 
 if __name__ == "__main__":
     logging.info("Flask app started")
