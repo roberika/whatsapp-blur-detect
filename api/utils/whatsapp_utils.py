@@ -41,8 +41,8 @@ def is_blur(image):
     fm = variance_of_laplacian(image)
     return True if fm >= blur_threshold else False
 
-def generate_response(response):
-    if 'image' in response[response['type']]['mime_type']:
+def generate_response(message):
+    if is_valid_image_message(message):
         return "Hey it's an image!"
 #     # WhatsApp logic to get media
 #     #####
@@ -70,7 +70,7 @@ def generate_response(response):
 #         else:
 #             return "Gambar anda tidak memiliki blur"
 
-    return response.upper()
+    return message["text"]["body"].upper()
 
 
 def download_media(media_url):
@@ -151,14 +151,9 @@ def process_whatsapp_message(body):
     name = body["entry"][0]["changes"][0]["value"]["contacts"][0]["profile"]["name"]
 
     message = body["entry"][0]["changes"][0]["value"]["messages"][0]
-    message_body = message["text"]["body"]
 
     # TODO: implement custom function here
-    response = generate_response(message_body)
-
-    # OpenAI Integration
-    # response = generate_response(message_body, wa_id, name)
-    # response = process_text_for_whatsapp(response)
+    response = generate_response(message)
 
     data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response)
     send_message(data)
@@ -175,4 +170,17 @@ def is_valid_whatsapp_message(body):
         and body["entry"][0]["changes"][0].get("value")
         and body["entry"][0]["changes"][0]["value"].get("messages")
         and body["entry"][0]["changes"][0]["value"]["messages"][0]
+    )
+
+def is_valid_image_message(message):
+    return (
+        message.get('type')
+        and message['type'] == 'image'
+        and message['image'] 
+    )
+
+def is_valid_text_message(message):
+    return (
+        message["text"]
+        and message['text']["body"]
     )
