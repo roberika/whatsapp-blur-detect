@@ -104,6 +104,7 @@ def download_media(media_id, phone_number_id):
     else:
         # Process the response as normal
         log_http_response(response)
+        logging.info(response)
         return response
 
 
@@ -131,6 +132,7 @@ def retrieve_media_url(media_id, phone_number_id):
     else:
         # Process the response as normal
         log_http_response(response)
+        logging.info(response)
         return response['media_url']
 
 
