@@ -80,11 +80,11 @@ def identify_blur(media_id):
     return 'Hey, it\'s an image!'
 
 
+# Returns the image in a fucking header
 def download_media(media_id):
-    media_url = retrieve_media_url(media_id)
+    media_url, mime_type = retrieve_media_url(media_id)
 
     headers = {
-        ## "Content-type": "application/json",
         "Authorization": f"Bearer {current_app.config['ACCESS_TOKEN']}",
     }
 
@@ -106,14 +106,16 @@ def download_media(media_id):
     else:
         # Return the image
         log_http_response(response)
-        logging.info("Media downloaded")
         logging.info(f"Media File: {True if response.headers.get('media-file') else False}")
-        return response.content
+        logging.info(f"Mime Type: {mime_type}")
+        logging.info("Media downloaded")
+        return response.headers.get('media-file'), mime_type
 
 
+# Returns the url and mime type of the media
+# https://github.com/shreyas-sreedhar/whatsapp-Cloudapi-aws-s3/blob/main/index.js
 def retrieve_media_url(media_id):
     headers = {
-        "Content-type": "application/json",
         "Authorization": f"Bearer {current_app.config['ACCESS_TOKEN']}",
     }
 
@@ -134,9 +136,13 @@ def retrieve_media_url(media_id):
         return jsonify({"status": "error", "message": "Failed to retrieve media url"}), 500
     else:
         # Return the url
+        url = response.json()['url']
+        mime_type = response.json()['mime_type']
         log_http_response(response)
+        logging.info(f"URL: {url}")
+        logging.info(f"Mime Type: {mime_type}")
         logging.info("Media url retrieved")
-        return response.json()['url']
+        return url, mime_type
 
 
 def send_message(data):
