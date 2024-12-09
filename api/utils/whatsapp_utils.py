@@ -89,7 +89,7 @@ def download_media(media_id):
         "Authorization": f"Bearer {current_app.config['ACCESS_TOKEN']}",
     }
 
-    url = f"https://graph.facebook.com/{current_app.config['VERSION']}/{media_url}"
+    url = media_url
 
     try:
         response = requests.get(
