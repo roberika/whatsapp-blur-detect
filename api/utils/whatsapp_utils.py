@@ -51,33 +51,32 @@ def generate_response(message):
     return 'I don\'t understand what you\'re saying.'
 
 def identify_blur(media_id):
-    download_media(media_id)
-#     # If it is a PDF file
-#     if(file_type == 'document'):
-#         req = download_media(media_id)
-#         data = req.content
-#         doc = pymupdf.Document(stream=data)
-#         blur_pages = []
-#         for i in range(0, doc.page_count()):
-#             page = doc.load_page(i)
-#             pixmap = page.get_pixmap(dpi=image_dpi)
-#             image = pixmap.tobytes()
-#             if is_blur(image):
-#                 blur_pages.append(i+1)
-#         if blur_pages:
-#             return "Dokumen yang anda kirim memiliki blur pada halaman " + str(blur_pages)
-#        else:
-#             return "Dokumen yang anda kirim tidak memiliki blur"
-#     # If it is a JPEG or PNG file
-#     else:
-#         req = download_media(media_id)
-#         arr = np.asarray(bytearray(req.read()), dtype=np.uint8)
-#         image = cv2.imdecode(arr, -1)
-#         if is_blur(image):
-#             return "Gambar anda memiliki blur"
-#         else:
-#             return "Gambar anda tidak memiliki blur"
-    return 'Hey, it\'s an image!'
+    data, mime_type = download_media(media_id)
+    # If it is a PDF file
+    if (mime_type == 'application/pdf'):
+        doc = pymupdf.Document(stream=data)
+        blur_pages = []
+        for i in range(0, doc.page_count()):
+            page = doc.load_page(i)
+            pixmap = page.get_pixmap(dpi=image_dpi)
+            image = pixmap.tobytes()
+            if is_blur(image):
+                blur_pages.append(i+1)
+        if blur_pages:
+            return "Dokumen yang anda kirim memiliki blur pada halaman " + str(blur_pages)
+        else:
+            return "Dokumen yang anda kirim tidak memiliki blur"
+    # If it is an image type file
+    elif ('image' in mime_type):
+        arr = np.asarray(bytearray(data), dtype=np.uint8)
+        image = cv2.imdecode(arr, -1)
+        if is_blur(image):
+            return "Gambar anda memiliki blur"
+        else:
+            return "Gambar anda tidak memiliki blur"
+    else:
+        return 'It\'s a media but not an image'
+    # return 'Hey, it\'s an image!'
 
 
 # Returns the image in a fucking header
@@ -110,7 +109,7 @@ def download_media(media_id):
         logging.info(f"Media File: {True if response.content else False}")
         logging.info(f"Mime Type: {mime_type}")
         logging.info("Media downloaded")
-        return response.headers.get('media-file'), mime_type
+        return response.content, mime_type
 
 
 # Returns the url and mime type of the media
