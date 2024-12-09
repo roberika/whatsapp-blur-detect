@@ -31,8 +31,8 @@ image_size_portrait = (1600, 1200)
 blur_threshold = 100 # for now
 
 def variance_of_laplacian(image):
+    height, width, _ = image.shape
     gray = cvtColor(image, COLOR_BGR2GRAY)
-    height, width, _ = gray.shape
     if height > width:
         resized = resize(gray, image_size_portrait)
     else:
@@ -70,7 +70,6 @@ def identify_blur(media_id):
     elif ('image' in mime_type):
         arr = np.asarray(bytearray(data), dtype=np.uint8)
         image = imdecode(arr, -1)
-        logging.info(image)
         if is_blur(image):
             return "Gambar anda memiliki blur"
         else:
@@ -106,7 +105,9 @@ def download_media(media_id):
         return jsonify({"status": "error", "message": "Failed to download media"}), 500
     else:
         # Return the image
-        log_http_response(response)
+        logging.info(f"Status: {response.status_code}")
+        logging.info(f"Headers: {response.headers}")
+        logging.info(f"Content-type: {response.headers.get('content-type')}")
         logging.info(f"Media File: {True if (response.content and response.content != None) else False}")
         logging.info(f"Mime Type: {mime_type}")
         logging.info("Media downloaded")
