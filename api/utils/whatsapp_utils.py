@@ -11,6 +11,7 @@ def log_http_response(response):
     logging.info(f"Status: {response.status_code}")
     logging.info(f"Content-type: {response.headers.get('content-type')}")
     logging.info(f"Body: {response.text}")
+    logging.info(f"Content: {True if response.content else False}")
 
 
 def get_text_message_input(recipient, text):
@@ -103,10 +104,10 @@ def download_media(media_id):
         logging.error(f"Request failed due to: {e}")
         return jsonify({"status": "error", "message": "Failed to download media"}), 500
     else:
-        # Process the response as normal
+        # Return the image
         log_http_response(response)
         logging.info("Media downloaded")
-        return response.json()
+        return response.content
 
 
 def retrieve_media_url(media_id):
@@ -131,7 +132,7 @@ def retrieve_media_url(media_id):
         logging.error(f"Request failed due to: {e}")
         return jsonify({"status": "error", "message": "Failed to retrieve media url"}), 500
     else:
-        # Process the response as normal
+        # Return the url
         log_http_response(response)
         logging.info("Media url retrieved")
         return response.json()['url']
