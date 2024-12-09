@@ -3,7 +3,7 @@ from flask import current_app, jsonify
 import json
 import requests
 import re
-import cv2
+from cv2 import cvtColor, COLOR_BGR2GRAY, resize, Laplacian, CV_64F, imdecode
 import numpy as np
 import pymupdf
 
@@ -31,13 +31,13 @@ image_size_portrait = (1600, 1200)
 blur_threshold = 100 # for now
 
 def variance_of_laplacian(image):
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    gray = cvtColor(image, COLOR_BGR2GRAY)
     height, width, _ = gray.shape
     if height > width:
-        resized = cv2.resize(gray, image_size_portrait)
+        resized = resize(gray, image_size_portrait)
     else:
-        resized = cv2.resize(gray, image_size_landscape)
-    return cv2.Laplacian(resized, cv2.CV_64F).var()
+        resized = resize(gray, image_size_landscape)
+    return Laplacian(resized, CV_64F).var()
 
 def is_blur(image):
     fm = variance_of_laplacian(image)
@@ -69,7 +69,8 @@ def identify_blur(media_id):
     # If it is an image type file
     elif ('image' in mime_type):
         arr = np.asarray(bytearray(data), dtype=np.uint8)
-        image = cv2.imdecode(arr, -1)
+        image = imdecode(arr, -1)
+        logging.info(image)
         if is_blur(image):
             return "Gambar anda memiliki blur"
         else:
@@ -106,7 +107,7 @@ def download_media(media_id):
     else:
         # Return the image
         log_http_response(response)
-        logging.info(f"Media File: {True if response.content else False}")
+        logging.info(f"Media File: {response.content if response.content else False}")
         logging.info(f"Mime Type: {mime_type}")
         logging.info("Media downloaded")
         return response.content, mime_type
