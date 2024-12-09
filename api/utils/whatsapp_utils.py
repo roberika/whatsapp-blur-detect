@@ -26,8 +26,8 @@ def get_text_message_input(recipient, text):
     )
 
 image_dpi = 72
-image_size_landscape = (1200, 1600)
-image_size_portrait = (1600, 1200)
+image_size_landscape = (300, 400)
+image_size_portrait = (400, 300)
 blur_threshold = 100 # for now
 
 def variance_of_laplacian(image):
