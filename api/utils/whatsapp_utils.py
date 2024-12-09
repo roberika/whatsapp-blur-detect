@@ -41,6 +41,7 @@ def variance_of_laplacian(image):
 
 def is_blur(image):
     fm = variance_of_laplacian(image)
+    logging.info(f"Focus Measure: {fm}")
     return True if fm >= blur_threshold else False
 
 def generate_response(message):
