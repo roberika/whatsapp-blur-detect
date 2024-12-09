@@ -107,7 +107,7 @@ def download_media(media_id):
     else:
         # Return the image
         log_http_response(response)
-        logging.info(f"Media File: {response.content if response.content else False}")
+        logging.info(f"Media File: {True if (response.content and response.content != None) else False}")
         logging.info(f"Mime Type: {mime_type}")
         logging.info("Media downloaded")
         return response.content, mime_type
