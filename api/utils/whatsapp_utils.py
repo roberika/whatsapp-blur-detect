@@ -9,9 +9,9 @@ import pymupdf
 
 def log_http_response(response):
     logging.info(f"Status: {response.status_code}")
+    logging.info(f"Headers: {response.headers}")
     logging.info(f"Content-type: {response.headers.get('content-type')}")
     logging.info(f"Body: {response.text}")
-    logging.info(f"Content: {True if response.content else False}")
 
 
 def get_text_message_input(recipient, text):
@@ -84,7 +84,7 @@ def download_media(media_id):
     media_url = retrieve_media_url(media_id)
 
     headers = {
-        "Content-type": "application/json",
+        ## "Content-type": "application/json",
         "Authorization": f"Bearer {current_app.config['ACCESS_TOKEN']}",
     }
 
@@ -107,6 +107,8 @@ def download_media(media_id):
         # Return the image
         log_http_response(response)
         logging.info("Media downloaded")
+        logging.info(response.content)
+        logging.info(response)
         return response.content
 
 
