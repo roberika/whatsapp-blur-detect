@@ -85,6 +85,7 @@ def download_media(media_id):
     media_url, mime_type = retrieve_media_url(media_id)
 
     headers = {
+        "Content-Type": mime_type,
         "Authorization": f"Bearer {current_app.config['ACCESS_TOKEN']}",
     }
 
@@ -106,7 +107,7 @@ def download_media(media_id):
     else:
         # Return the image
         log_http_response(response)
-        logging.info(f"Media File: {True if response.headers.get('media-file') else False}")
+        logging.info(f"Media File: {True if response.content else False}")
         logging.info(f"Mime Type: {mime_type}")
         logging.info("Media downloaded")
         return response.headers.get('media-file'), mime_type
@@ -147,7 +148,7 @@ def retrieve_media_url(media_id):
 
 def send_message(data):
     headers = {
-        "Content-type": "application/json",
+        "Content-Type": "application/json",
         "Authorization": f"Bearer {current_app.config['ACCESS_TOKEN']}",
     }
 
