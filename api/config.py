@@ -6,7 +6,7 @@ def load_configurations(app):
     app.config["APP_ID"] = "1517361378925084"
     app.config["APP_SECRET"] = "ba1fa5a0d87d3161d6a6556c71252345"
     app.config["RECIPIENT_WAID"] = "6281278989888"
-    app.config["VERSION"] = "v18.0"
+    app.config["VERSION"] = "v21.0"
     app.config["PHONE_NUMBER_ID"] = "520078131183551"
     app.config["VERIFY_TOKEN"] = "jakeisadog"
 
