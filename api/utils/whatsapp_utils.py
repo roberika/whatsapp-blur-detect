@@ -106,7 +106,7 @@ def download_media(media_id):
         # Process the response as normal
         log_http_response(response)
         logging.info("Media downloaded")
-        return response
+        return response.json()
 
 
 def retrieve_media_url(media_id):
@@ -134,7 +134,7 @@ def retrieve_media_url(media_id):
         # Process the response as normal
         log_http_response(response)
         logging.info("Media url retrieved")
-        return response['url']
+        return response.json()['url']
 
 
 def send_message(data):
