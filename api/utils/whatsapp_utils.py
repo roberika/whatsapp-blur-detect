@@ -107,7 +107,7 @@ def download_media(media_id):
         # Return the image
         log_http_response(response)
         logging.info("Media downloaded")
-        logging.info(f"Media File: {True if response.headers.get('content-type')['media-file'] else False}")
+        logging.info(f"Media File: {True if response.headers.get('media-file') else False}")
         return response.content
 
 
