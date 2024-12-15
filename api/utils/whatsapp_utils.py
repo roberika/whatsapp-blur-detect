@@ -25,22 +25,18 @@ def get_text_message_input(recipient, text):
         }
     )
 
-image_dpi = 72
-image_size_landscape = (300, 400)
-image_size_portrait = (400, 300)
+image_dpi = 96 # mengikuti DPI gambar dari WhatsApp
+image_width = 400
 blur_threshold = 100 # for now
 
 def variance_of_laplacian(image):
-    height, width, _ = image.shape
-    gray = cvtColor(image, COLOR_BGR2GRAY)
-    if height > width:
-        resized = resize(gray, image_size_portrait)
-    else:
-        resized = resize(gray, image_size_landscape)
-    return Laplacian(resized, CV_64F).var()
+    return Laplacian(image, CV_64F).var()
 
 def is_blur(image):
-    fm = variance_of_laplacian(image)
+    height, width, _ = image.shape
+    gray = cvtColor(image, COLOR_BGR2GRAY)
+    resized = resize(gray, (image_width, int(image_width * height / width)))
+    fm = variance_of_laplacian(resized)
     logging.info(f"Focus Measure: {fm}")
     return True if fm <= blur_threshold else False
 
