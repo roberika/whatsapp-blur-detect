@@ -26,8 +26,8 @@ def get_text_message_input(recipient, text):
     )
 
 image_dpi = 96 # mengikuti DPI gambar dari WhatsApp
-image_width = 400
-blur_threshold = 100 # for now
+image_size = 1600
+blur_threshold = 220.66 # https://colab.research.google.com/drive/1gkUsybQlNrhDQhLNg0pAwnqINuNSqRvk?usp=sharing
 
 def variance_of_laplacian(image):
     return Laplacian(image, CV_64F).var()
@@ -35,7 +35,10 @@ def variance_of_laplacian(image):
 def is_blur(image):
     height, width, _ = image.shape
     gray = cvtColor(image, COLOR_BGR2GRAY)
-    resized = resize(gray, (image_width, int(image_width * height / width)))
+    if height <= width:
+        resized = resize(gray, (image_size, int(image_size * height / width)))
+    else:
+        resized = resize(gray, (int(image_size * width / height), image_size))
     fm = variance_of_laplacian(resized)
     logging.info(f"Focus Measure: {fm}")
     return True if fm <= blur_threshold else False
@@ -51,23 +54,14 @@ def identify_blur(media_id):
     data, mime_type = download_media(media_id)
     # If it is a PDF file
     if (mime_type == 'application/pdf'):
-        doc = pymupdf.Document(stream=data)
-        blur_pages = []
-        for i in range(0, doc.page_count()):
-            page = doc.load_page(i)
-            pixmap = page.get_pixmap(dpi=image_dpi)
-            image = pixmap.tobytes()
-            if is_blur(image):
-                blur_pages.append(i+1)
+        blur_pages = process_document(data)
         if blur_pages:
             return "Dokumen yang anda kirim memiliki blur pada halaman " + str(blur_pages)
         else:
             return "Dokumen yang anda kirim tidak memiliki blur"
     # If it is an image type file
     elif ('image' in mime_type):
-        arr = np.asarray(bytearray(data), dtype=np.uint8)
-        image = imdecode(arr, -1)
-        if is_blur(image):
+        if process_image(data):
             return "Gambar anda memiliki blur"
         else:
             return "Gambar anda tidak memiliki blur"
@@ -75,6 +69,23 @@ def identify_blur(media_id):
         return 'It\'s a media but not an image'
     # return 'Hey, it\'s an image!'
 
+# Returns on what pages the image is blurred in
+def process_document(data):
+    doc = pymupdf.Document(stream=data)
+    blur_pages = []
+    for i in range(0, doc.page_count()):
+        page = doc.load_page(i)
+        pixmap = page.get_pixmap(dpi=image_dpi)
+        image = pixmap.tobytes()
+        if is_blur(image):
+            blur_pages.append(i+1)
+    return blur_pages
+
+# Returns is the image blurred
+def process_image(data):
+    arr = np.asarray(bytearray(data), dtype=np.uint8)
+    image = imdecode(arr, -1)
+    return is_blur(image)
 
 # Returns the image in a fucking header
 def download_media(media_id):

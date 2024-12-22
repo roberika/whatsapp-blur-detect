@@ -1,7 +1,9 @@
-from flask import Flask
+from flask import Flask, request
 import logging
 from api.config import load_configurations, configure_logging
 from .views import webhook_blueprint
+from .utils.whatsapp_utils import process_image
+
 
 def create_app():
     app = Flask(__name__)
@@ -25,6 +27,7 @@ if __name__ == "__main__":
 def home():
     return 'Hello, World!'
 
-@app.route('/about')
-def about():
-    return 'About'
+@app.route("/stress-test", methods=["POST"])
+def stress_test():
+    process_image(request.files["image"])
+    return
