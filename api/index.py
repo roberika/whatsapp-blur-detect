@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, jsonify, request
 import logging
 from api.config import load_configurations, configure_logging
 from .views import webhook_blueprint
@@ -32,5 +32,5 @@ def ping():
 
 @app.route("/stress-test", methods=["POST"])
 def stress_test():
-    process_image(request.files["image"])
-    return
+    process_image(request.data)
+    return jsonify({"status": "success", "message": "We're good"}), 200
