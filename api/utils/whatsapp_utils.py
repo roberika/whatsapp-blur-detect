@@ -78,7 +78,7 @@ def identify_blur(media_id):
 def process_document(data):
     doc = pymupdf.Document(stream=data)
     blur_pages = []
-    for i in range(0, doc.page_count()):
+    for i in range(0, doc.page_count):
         page = doc.load_page(i)
         pixmap = page.get_pixmap(dpi=image_dpi)
         image = pixmap.tobytes()
