@@ -6,6 +6,7 @@ import re
 from cv2 import cvtColor, COLOR_BGR2GRAY, resize, Laplacian, CV_64F, imdecode
 import numpy as np
 import pymupdf
+import reply_messages
 
 def log_http_response(response):
     logging.info(f"Status: {response.status_code}")
@@ -46,9 +47,11 @@ def is_blur(image):
 def generate_response(message):
     if is_valid_image_message(message):
         return identify_blur(message["image"]["id"])
+    if is_valid_document_message(message):
+        return identify_blur(message["document"]["id"])
     if is_valid_text_message(message):
-        return message["text"]["body"].upper()
-    return 'I don\'t understand what you\'re saying.'
+        return reply_messages.reply_text()
+    return reply_messages.reply_unknown()
 
 def identify_blur(media_id):
     data, mime_type = download_media(media_id)
@@ -56,18 +59,16 @@ def identify_blur(media_id):
     if (mime_type == 'application/pdf'):
         blur_pages = process_document(data)
         if blur_pages:
-            return "Dokumen yang anda kirim memiliki blur pada halaman " + str(blur_pages)
+            return reply_messages.reply_document_blur(blur_pages)
         else:
-            return "Dokumen yang anda kirim tidak memiliki blur"
+            return reply_messages.reply_document_clear()
     # If it is an image type file
     elif ('image' in mime_type):
         if process_image(data):
-            return "Gambar anda memiliki blur"
+            return reply_messages.reply_image_blur()
         else:
-            return "Gambar anda tidak memiliki blur"
-    else:
-        return 'It\'s a media but not an image'
-    # return 'Hey, it\'s an image!'
+            return reply_messages.reply_image_clear()
+    return reply_messages.reply_unknown()
 
 # Returns on what pages the image is blurred in
 def process_document(data):
@@ -233,6 +234,13 @@ def is_valid_image_message(message):
         message.get('type')
         and message['type'] == 'image'
         and message['image'] 
+    )
+
+def is_valid_document_message(message):
+    return (
+        message.get('type')
+        and message['type'] == 'document'
+        and message['document'] 
     )
 
 def is_valid_text_message(message):
