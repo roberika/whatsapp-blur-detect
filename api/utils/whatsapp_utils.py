@@ -6,7 +6,11 @@ import re
 from cv2 import cvtColor, COLOR_BGR2GRAY, resize, Laplacian, CV_64F, imdecode
 import numpy as np
 import pymupdf
-import reply_messages
+from .reply_messages import (
+    reply_text, reply_unknown,
+    reply_document_blur, reply_document_clear,
+    reply_image_blur, reply_image_clear
+)
 
 def log_http_response(response):
     logging.info(f"Status: {response.status_code}")
@@ -50,8 +54,8 @@ def generate_response(message):
     if is_valid_document_message(message):
         return identify_blur(message["document"]["id"])
     if is_valid_text_message(message):
-        return reply_messages.reply_text()
-    return reply_messages.reply_unknown()
+        return reply_text()
+    return reply_unknown()
 
 def identify_blur(media_id):
     data, mime_type = download_media(media_id)
@@ -59,16 +63,16 @@ def identify_blur(media_id):
     if (mime_type == 'application/pdf'):
         blur_pages = process_document(data)
         if blur_pages:
-            return reply_messages.reply_document_blur(blur_pages)
+            return reply_document_blur(blur_pages)
         else:
-            return reply_messages.reply_document_clear()
+            return reply_document_clear()
     # If it is an image type file
     elif ('image' in mime_type):
         if process_image(data):
-            return reply_messages.reply_image_blur()
+            return reply_image_blur()
         else:
-            return reply_messages.reply_image_clear()
-    return reply_messages.reply_unknown()
+            return reply_image_clear()
+    return reply_unknown()
 
 # Returns on what pages the image is blurred in
 def process_document(data):
