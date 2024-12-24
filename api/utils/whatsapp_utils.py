@@ -81,7 +81,9 @@ def process_document(data):
     for i in range(0, doc.page_count):
         page = doc.load_page(i)
         pixmap = page.get_pixmap(dpi=image_dpi)
-        image = pixmap.tobytes()
+        byte = pixmap.tobytes()
+        arr = np.asarray(bytearray(byte), dtype=np.uint8)
+        image = imdecode(arr, -1)
         if is_blur(image):
             blur_pages.append(i+1)
     return blur_pages
@@ -186,25 +188,6 @@ def send_message(data):
         log_http_response(response)
         logging.info("Message sent")
         return response
-
-
-def process_text_for_whatsapp(text):
-    # Remove brackets
-    pattern = r"\【.*?\】"
-    # Substitute the pattern with an empty string
-    text = re.sub(pattern, "", text).strip()
-
-    # Pattern to find double asterisks including the word(s) in between
-    pattern = r"\*\*(.*?)\*\*"
-
-    # Replacement pattern with single asterisks
-    replacement = r"*\1*"
-
-    # Substitute occurrences of the pattern with the replacement
-    whatsapp_style_text = re.sub(pattern, replacement, text)
-
-    return whatsapp_style_text
-
 
 def process_whatsapp_message(body):
     logging.info(body)
