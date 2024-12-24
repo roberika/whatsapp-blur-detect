@@ -7,9 +7,9 @@ def reply_document_blur(blur_pages):
 def reply_document_clear(): 
     return "Dokumen yang anda kirim akan kami proses untuk pengecekan"
 def reply_image_blur():
-    return "Gambar anda kirim memiliki blur, mohon ambil ulang gambar tersebut"
+    return "Gambar yang anda kirim memiliki blur, mohon ambil ulang gambar tersebut"
 def reply_image_clear():
-    return "Gambar dokumen anda kirim akan kami proses untuk pengecekan"
+    return "Gambar dokumen yang anda kirim akan kami proses untuk pengecekan"
 
 
 

@@ -81,9 +81,7 @@ def process_document(data):
     for i in range(0, doc.page_count):
         page = doc.load_page(i)
         pixmap = page.get_pixmap(dpi=image_dpi)
-        byte = pixmap.tobytes()
-        arr = np.asarray(bytearray(byte), dtype=np.uint8)
-        image = imdecode(arr, -1)
+        image = np.frombuffer(pixmap.samples_mv, dtype=np.uint8).reshape((pixmap.height, pixmap.width, -1))
         if is_blur(image):
             blur_pages.append(i+1)
     return blur_pages
