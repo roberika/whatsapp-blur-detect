@@ -9,7 +9,8 @@ import pymupdf
 from .reply_messages import (
     reply_text, reply_unknown,
     reply_document_blur, reply_document_clear,
-    reply_image_blur, reply_image_clear
+    reply_image_blur, reply_image_clear,
+    reply_document_blur_too_long, reply_document_clear_too_long,
 )
 
 def log_http_response(response):
@@ -32,7 +33,7 @@ def get_text_message_input(recipient, text):
 
 image_dpi = 96 # mengikuti DPI gambar dari WhatsApp
 image_size = 1600
-blur_threshold = 220.66 # https://colab.research.google.com/drive/1gkUsybQlNrhDQhLNg0pAwnqINuNSqRvk?usp=sharing
+blur_threshold = 313.68 # https://colab.research.google.com/drive/1gkUsybQlNrhDQhLNg0pAwnqINuNSqRvk?usp=sharing
 
 def variance_of_laplacian(image):
     return Laplacian(image, CV_64F).var()
@@ -61,11 +62,17 @@ def identify_blur(media_id):
     data, mime_type = download_media(media_id)
     # If it is a PDF file
     if (mime_type == 'application/pdf'):
-        blur_pages = process_document(data)
-        if blur_pages:
-            return reply_document_blur(blur_pages)
+        under_50, blur_pages = process_document(data)
+        if under_50:
+            if blur_pages:
+                return reply_document_blur(blur_pages)
+            else:
+                return reply_document_clear()
         else:
-            return reply_document_clear()
+            if blur_pages:
+                return reply_document_blur_too_long(blur_pages)
+            else:
+                return reply_document_clear_too_long()
     # If it is an image type file
     elif ('image' in mime_type):
         if process_image(data):
@@ -78,13 +85,14 @@ def identify_blur(media_id):
 def process_document(data):
     doc = pymupdf.Document(stream=data)
     blur_pages = []
-    for i in range(0, doc.page_count):
+    pages = doc.page_count
+    for i in range(0, min(pages, 50)):
         page = doc.load_page(i)
         pixmap = page.get_pixmap(dpi=image_dpi)
         image = np.frombuffer(pixmap.samples_mv, dtype=np.uint8).reshape((pixmap.height, pixmap.width, -1))
         if is_blur(image):
             blur_pages.append(i+1)
-    return blur_pages
+    return (True if pages <= 50 else False), blur_pages
 
 # Returns is the image blurred
 def process_image(data):
