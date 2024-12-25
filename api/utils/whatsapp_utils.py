@@ -33,7 +33,7 @@ def get_text_message_input(recipient, text):
 
 image_dpi = 96 # mengikuti DPI gambar dari WhatsApp
 image_size = 1600
-blur_threshold = 39,71 # https://colab.research.google.com/drive/1gkUsybQlNrhDQhLNg0pAwnqINuNSqRvk?usp=sharing
+blur_threshold = 39.71 # https://colab.research.google.com/drive/1gkUsybQlNrhDQhLNg0pAwnqINuNSqRvk?usp=sharing
 
 def variance_of_laplacian(image):
     return Laplacian(image, CV_64F).var()
