@@ -39,14 +39,13 @@ def variance_of_laplacian(image):
     return Laplacian(image, CV_64F).var()
 
 def is_blur(image):
-    # height, width, _ = image.shape
+    height, width, _ = image.shape
     gray = cvtColor(image, COLOR_BGR2GRAY)
-    # if height <= width:
-    #     resized = resize(gray, (image_size, int(image_size * height / width)))
-    # else:
-    #     resized = resize(gray, (int(image_size * width / height), image_size))
-    # fm = variance_of_laplacian(resized)
-    fm = variance_of_laplacian(gray)
+    if height <= width:
+        resized = resize(gray, (image_size, int(image_size * height / width)))
+    else:
+        resized = resize(gray, (int(image_size * width / height), image_size))
+    fm = variance_of_laplacian(resized)
     logging.info(f"Focus Measure: {fm}")
     return True if fm <= blur_threshold else False
 
