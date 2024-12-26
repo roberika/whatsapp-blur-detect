@@ -33,7 +33,7 @@ def get_text_message_input(recipient, text):
 
 image_dpi = 96 # mengikuti DPI gambar dari WhatsApp
 image_size = 1600
-blur_threshold = 39.71 # https://colab.research.google.com/drive/1gkUsybQlNrhDQhLNg0pAwnqINuNSqRvk?usp=sharing
+blur_threshold = 141 # https://colab.research.google.com/drive/1gkUsybQlNrhDQhLNg0pAwnqINuNSqRvk?usp=sharing
 
 def variance_of_laplacian(image):
     return Laplacian(image, CV_64F).var()
@@ -41,10 +41,10 @@ def variance_of_laplacian(image):
 def is_blur(image):
     height, width, _ = image.shape
     gray = cvtColor(image, COLOR_BGR2GRAY)
-    # if height <= width:
-    #     resized = resize(gray, (image_size, int(image_size * height / width)), interpolation=INTER_CUBIC)
-    # else:
-    #     resized = resize(gray, (int(image_size * width / height), image_size))
+    if height <= width:
+        resized = resize(gray, (image_size, int(image_size * height / width)), interpolation=INTER_CUBIC)
+    else:
+        resized = resize(gray, (int(image_size * width / height), image_size), interpolation=INTER_CUBIC)
     fm = variance_of_laplacian(gray)
     logging.info(f"Focus Measure: {fm}")
     return True if fm <= blur_threshold else False
