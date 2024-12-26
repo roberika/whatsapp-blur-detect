@@ -3,7 +3,7 @@ from flask import current_app, jsonify
 import json
 import requests
 import re
-from cv2 import cvtColor, COLOR_BGR2GRAY, CUBIC, resize, Laplacian, CV_64F, imdecode
+from cv2 import cvtColor, COLOR_BGR2GRAY, INTER_CUBIC, resize, Laplacian, CV_64F, imdecode
 import numpy as np
 import pymupdf
 from .reply_messages import (
@@ -41,11 +41,11 @@ def variance_of_laplacian(image):
 def is_blur(image):
     height, width, _ = image.shape
     gray = cvtColor(image, COLOR_BGR2GRAY)
-    if height <= width:
-        resized = resize(gray, (image_size, int(image_size * height / width)), interpolation=CUBIC)
-    else:
-        resized = resize(gray, (int(image_size * width / height), image_size))
-    fm = variance_of_laplacian(resized)
+    # if height <= width:
+    #     resized = resize(gray, (image_size, int(image_size * height / width)), interpolation=INTER_CUBIC)
+    # else:
+    #     resized = resize(gray, (int(image_size * width / height), image_size))
+    fm = variance_of_laplacian(gray)
     logging.info(f"Focus Measure: {fm}")
     return True if fm <= blur_threshold else False
 
