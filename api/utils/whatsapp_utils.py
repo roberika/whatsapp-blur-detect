@@ -3,7 +3,7 @@ from flask import current_app, jsonify
 import json
 import requests
 import re
-from cv2 import cvtColor, COLOR_BGR2GRAY, resize, Laplacian, CV_64F, imdecode
+from cv2 import cvtColor, COLOR_BGR2GRAY, Laplacian, CV_64F, imdecode
 import numpy as np
 import pymupdf
 from .reply_messages import (
@@ -19,7 +19,6 @@ def log_http_response(response):
     logging.info(f"Content-type: {response.headers.get('content-type')}")
     logging.info(f"Body: {response.text}")
 
-
 def get_text_message_input(recipient, text):
     return json.dumps(
         {
@@ -32,20 +31,14 @@ def get_text_message_input(recipient, text):
     )
 
 image_dpi = 96 # mengikuti DPI gambar dari WhatsApp
-image_size = 1600
 blur_threshold = 141.32 # https://colab.research.google.com/drive/1gkUsybQlNrhDQhLNg0pAwnqINuNSqRvk?usp=sharing
 
 def variance_of_laplacian(image):
     return Laplacian(image, CV_64F).var()
 
 def is_blur(image):
-    height, width, _ = image.shape
     gray = cvtColor(image, COLOR_BGR2GRAY)
-    if height <= width:
-        resized = resize(gray, (image_size, int(image_size * height / width)))
-    else:
-        resized = resize(gray, (int(image_size * width / height), image_size))
-    fm = variance_of_laplacian(resized)
+    fm = variance_of_laplacian(gray)
     logging.info(f"Focus Measure: {fm}")
     return True if fm <= blur_threshold else False
 
