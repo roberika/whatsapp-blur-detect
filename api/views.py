@@ -11,6 +11,11 @@ from .utils.whatsapp_utils import (
 
 webhook_blueprint = Blueprint("webhook", __name__)
 
+@webhook_blueprint.route("/webhook", methods=["POST"])
+@signature_required
+def webhook_post():
+    return handle_message()
+
 def handle_message():
     """
     Handle incoming webhook events from the WhatsApp API.
@@ -26,7 +31,6 @@ def handle_message():
         response: A tuple containing a JSON response and an HTTP status code.
     """
     body = request.get_json()
-    # logging.info(f"request body: {body}")
 
     # Check if it's a WhatsApp status update
     if (
@@ -53,6 +57,10 @@ def handle_message():
         return jsonify({"status": "error", "message": "Invalid JSON provided"}), 400
 
 
+@webhook_blueprint.route("/webhook", methods=["GET"])
+def webhook_get():
+    return verify()
+
 # Required webhook verifictaion for WhatsApp
 def verify():
     # Parse params from the webhook verification request
@@ -74,17 +82,3 @@ def verify():
         # Responds with '400 Bad Request' if verify tokens do not match
         logging.info("MISSING_PARAMETER")
         return jsonify({"status": "error", "message": "Missing parameters"}), 400
-
-
-@webhook_blueprint.route("/webhook", methods=["GET"])
-def webhook_get():
-    return verify()
-
-@webhook_blueprint.route("/webhook", methods=["POST"])
-@signature_required
-def webhook_post():
-    return handle_message()
-
-
-
-

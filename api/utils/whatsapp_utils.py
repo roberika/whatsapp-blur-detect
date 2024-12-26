@@ -190,12 +190,7 @@ def send_message(data):
 
 def process_whatsapp_message(body):
     logging.info(body)
-    wa_id = body["entry"][0]["changes"][0]["value"]["contacts"][0]["wa_id"]
-    name = body["entry"][0]["changes"][0]["value"]["contacts"][0]["profile"]["name"]
-
     message = body["entry"][0]["changes"][0]["value"]["messages"][0]
-
-    # TODO: implement custom function here
     response = generate_response(message)
 
     data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response)
