@@ -11,9 +11,9 @@ def reply_image_blur():
 def reply_image_clear():
     return "Gambar dokumen yang anda kirim diidentifikasi tidak ada blur dan akan kami proses untuk pengecekan"
 def reply_document_blur_too_long(blur_pages): 
-    return "Dokumen yang anda kirim memiliki blur pada halaman " + str(blur_pages) + " pada 50 halaman pertama, mohon ambil ulang gambar pada halaman tersebut"
+    return "Dokumen yang anda kirim memiliki blur pada halaman " + str(blur_pages) + " pada 100 halaman pertama, mohon ambil ulang gambar pada halaman tersebut"
 def reply_document_clear_too_long(): 
-    return "Dokumen yang anda kirim diidentifikasi tidak ada blur pada 50 halamanan pertamanya dan akan kami proses untuk pengecekan"
+    return "Dokumen yang anda kirim diidentifikasi tidak ada blur pada 100 halamanan pertamanya dan akan kami proses untuk pengecekan"
 
 
 

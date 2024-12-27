@@ -36,10 +36,10 @@ blur_threshold = 39.71 # https://colab.research.google.com/drive/1gkUsybQlNrhDQh
 def variance_of_laplacian(image):
     return Laplacian(image, CV_64F).var()
 
-def is_blur(image):
+def is_blur(image, index = 1):
     gray = cvtColor(image, COLOR_BGR2GRAY)
     fm = variance_of_laplacian(gray)
-    logging.info(f"Focus Measure: {fm}")
+    logging.info(f"{index}. Focus Measure: {fm}")
     return True if fm <= blur_threshold else False
 
 def generate_response(message):
@@ -55,8 +55,8 @@ def identify_blur(media_id):
     data, mime_type = download_media(media_id)
     # If it is a PDF file
     if (mime_type == 'application/pdf'):
-        under_50, blur_pages = process_document(data)
-        if under_50:
+        under_100, blur_pages = process_document(data)
+        if under_100:
             if blur_pages:
                 return reply_document_blur(blur_pages)
             else:
@@ -79,13 +79,13 @@ def process_document(data):
     doc = pymupdf.Document(stream=data)
     blur_pages = []
     pages = doc.page_count
-    for i in range(0, min(pages, 50)):
+    for i in range(0, min(pages, 100)):
         page = doc.load_page(i)
         pixmap = page.get_pixmap(dpi=image_dpi)
         image = np.frombuffer(pixmap.samples_mv, dtype=np.uint8).reshape((pixmap.height, pixmap.width, -1))
-        if is_blur(image):
+        if is_blur(image, index=(i+1)):
             blur_pages.append(i+1)
-    return (True if pages <= 50 else False), blur_pages
+    return (True if pages <= 100 else False), blur_pages
 
 # Returns is the image blurred
 def process_image(data):
