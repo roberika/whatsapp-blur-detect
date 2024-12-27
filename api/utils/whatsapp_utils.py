@@ -32,7 +32,7 @@ def get_text_message_input(recipient, text):
         }
     )
 
-image_width = 1600 # ukuran gambar standar WhatsApp
+image_width = 1200 # ukuran gambar standar WhatsApp
 image_dpi = 96 # mengikuti DPI gambar dari WhatsApp
 blur_threshold = 39.71 # https://colab.research.google.com/drive/1gkUsybQlNrhDQhLNg0pAwnqINuNSqRvk?usp=sharing
 
