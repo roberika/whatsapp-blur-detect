@@ -84,7 +84,7 @@ def process_document(data):
     pages = doc.page_count
     for i in range(0, min(pages, 100)):
         page = doc.load_page(i)
-        pixmap = page.get_pixmap(dpi=image_dpi)
+        pixmap = page.get_pixmap()
         raw = np.frombuffer(pixmap.samples_mv, dtype=np.uint8).reshape((pixmap.height, pixmap.width, -1))
         if pixmap.height <= pixmap.width:
             image = resize(raw, (image_width, int(image_width * pixmap.height / pixmap.width)))
