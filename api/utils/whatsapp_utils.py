@@ -3,7 +3,9 @@ from flask import current_app, jsonify
 import json
 import requests
 import re
-from cv2 import cvtColor, COLOR_BGR2GRAY, Laplacian, CV_64F, imdecode
+from cv2 import (
+    cvtColor, COLOR_BGR2GRAY, Laplacian, 
+    CV_64F, imdecode, resize)
 import numpy as np
 import pymupdf
 from .reply_messages import (
@@ -30,6 +32,7 @@ def get_text_message_input(recipient, text):
         }
     )
 
+image_width = 1600 # ukuran gambar standar WhatsApp
 image_dpi = 96 # mengikuti DPI gambar dari WhatsApp
 blur_threshold = 39.71 # https://colab.research.google.com/drive/1gkUsybQlNrhDQhLNg0pAwnqINuNSqRvk?usp=sharing
 
@@ -82,7 +85,11 @@ def process_document(data):
     for i in range(0, min(pages, 100)):
         page = doc.load_page(i)
         pixmap = page.get_pixmap(dpi=image_dpi)
-        image = np.frombuffer(pixmap.samples_mv, dtype=np.uint8).reshape((pixmap.height, pixmap.width, -1))
+        raw = np.frombuffer(pixmap.samples_mv, dtype=np.uint8).reshape((pixmap.height, pixmap.width, -1))
+        if pixmap.height <= pixmap.width:
+            image = resize(raw, (image_width, int(image_width * pixmap.height / pixmap.width)))
+        else:
+            image = resize(raw, (int(image_width * pixmap.width / pixmap.height), image_width))
         if is_blur(image, index=(i+1)):
             blur_pages.append(i+1)
     return (True if pages <= 100 else False), blur_pages
