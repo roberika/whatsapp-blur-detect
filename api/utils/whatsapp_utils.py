@@ -226,6 +226,7 @@ def is_valid_document_message(message):
 
 def is_valid_text_message(message):
     return (
-        message["text"]
+        message.get('text')
+        and message['text']
         and message['text']["body"]
     )
