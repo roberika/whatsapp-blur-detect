@@ -28,7 +28,27 @@ def get_text_message_input(recipient, text):
             "recipient_type": "individual",
             "to": recipient,
             "type": "text",
-            "text": {"preview_url": False, "body": text},
+            "text": {
+                "preview_url": False, 
+                "body": text
+            },
+        }
+    )
+
+def get_reply_text_message_input(recipient, text, message_id):
+    return json.dumps(
+        {
+            "messaging_product": "whatsapp",
+            "recipient_type": "individual",
+            "to": recipient,
+            "context": {
+                "message_id": message_id
+            },
+            "type": "text",
+            "text": {
+                "preview_url": False, 
+                "body": text
+            },
         }
     )
 
@@ -46,16 +66,15 @@ def is_blur(image, index = 1):
 
 def generate_response(message):
     if is_valid_image_message(message):
-        return identify_blur(message["image"]["id"])
+        return identify_blur(message["image"]["id"]), get_message_id(message)
     if is_valid_document_message(message):
-        return identify_blur(message["document"]["id"])
+        return identify_blur(message["document"]["id"]), get_message_id(message)
     if is_valid_text_message(message):
-        return reply_text()
-    return reply_unknown()
+        return reply_text(), None
+    return reply_unknown(), None
 
 def identify_blur(media_id):
     media_url, mime_type = retrieve_media_url(media_id)
-
     data = download_media(media_url, mime_type)
 
     # If it is a PDF file
@@ -104,6 +123,33 @@ def process_image(data):
     arr = np.asarray(bytearray(data), dtype=np.uint8)
     image = imdecode(arr, -1)
     return is_blur(image)
+
+# Returns the image in a fucking header
+def delete_media(media_id):
+    headers = {
+        "Authorization": f"Bearer {current_app.config['ACCESS_TOKEN']}",
+    }
+    
+    url = f"https://graph.facebook.com/{current_app.config['VERSION']}/{media_id}"
+
+    try:
+        response = requests.delete(
+            url, headers=headers, timeout=10
+        )  # 10 seconds timeout as an example
+        response.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
+    except requests.Timeout:
+        logging.error("Timeout occurred while deleting media")
+        return jsonify({"status": "error", "message": "Request timed out"}), 408
+    except (
+        requests.RequestException
+    ) as e:  # This will catch any general request exception
+        logging.error(f"Request failed due to: {e}")
+        return jsonify({"status": "error", "message": "Failed to delete media"}), 500
+    else:
+        # Return the image
+        logging.info(f"Status: {response.status_code}")
+        logging.info("Media deleted")
+        return response.json()['success']
 
 # Returns the image in a fucking header
 def delete_media(media_id):
@@ -225,9 +271,17 @@ def send_message(data):
 def process_whatsapp_message(body):
     logging.info(body)
     message = body["entry"][0]["changes"][0]["value"]["messages"][0]
-    response = generate_response(message)
+    response, message_id = generate_response(message)
 
-    data = get_text_message_input(current_app.config["RECIPIENT_WAID"], response)
+    data = (get_reply_text_message_input(
+        current_app.config["RECIPIENT_WAID"], 
+        response, 
+        message_id)
+            if message_id is not None else 
+            get_text_message_input(
+        current_app.config["RECIPIENT_WAID"], 
+        response))
+    
     send_message(data)
 
 
@@ -243,6 +297,9 @@ def is_valid_whatsapp_message(body):
         and body["entry"][0]["changes"][0]["value"].get("messages")
         and body["entry"][0]["changes"][0]["value"]["messages"][0]
     )
+
+def get_message_id(message):
+    return message['id']
 
 def is_valid_image_message(message):
     return (
