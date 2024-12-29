@@ -155,7 +155,7 @@ def mark_message(message_id, status_type):
     data = get_mark(message_id, status_type)
 
     try:
-        response = requests.patch(
+        response = requests.post(
             url, data=data, headers=headers, timeout=10
         )  # 10 seconds timeout as an example
         response.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
