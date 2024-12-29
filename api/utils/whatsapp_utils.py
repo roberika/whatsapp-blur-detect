@@ -149,7 +149,7 @@ def mark_message(message_id, status_type):
         "Authorization": f"Bearer {current_app.config['ACCESS_TOKEN']}",
     }
     
-    url = f"https://graph.facebook.com/{current_app.config['VERSION']}/{current_app.config['PHONE_NUMBER_ID']}/messages"
+    url = f"https://graph.facebook.com/{current_app.config['VERSION']}/{current_app.config['RECIPIENT_WAID']}/messages"
 
     data = get_mark(message_id, status_type)
 
