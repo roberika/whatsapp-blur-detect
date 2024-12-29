@@ -33,7 +33,6 @@ def get_text_message_input(recipient, text):
     )
 
 image_width = 1600 # ukuran gambar standar WhatsApp
-image_dpi = 96 # mengikuti DPI gambar dari WhatsApp
 blur_threshold = 39.71 # https://colab.research.google.com/drive/1gkUsybQlNrhDQhLNg0pAwnqINuNSqRvk?usp=sharing
 
 def variance_of_laplacian(image):
@@ -55,23 +54,29 @@ def generate_response(message):
     return reply_unknown()
 
 def identify_blur(media_id):
-    data, mime_type = download_media(media_id)
+    media_url, mime_type = retrieve_media_url(media_id)
+
+    data = download_media(media_url, mime_type)
+
     # If it is a PDF file
     if (mime_type == 'application/pdf'):
         under_100, blur_pages = process_document(data)
         if under_100:
             if blur_pages:
+                delete_media(media_id)
                 return reply_document_blur(blur_pages)
             else:
                 return reply_document_clear()
         else:
             if blur_pages:
+                delete_media(media_id)
                 return reply_document_blur_too_long(blur_pages)
             else:
                 return reply_document_clear_too_long()
     # If it is an image type file
     elif ('image' in mime_type):
         if process_image(data):
+            delete_media(media_id)
             return reply_image_blur()
         else:
             return reply_image_clear()
@@ -101,19 +106,42 @@ def process_image(data):
     return is_blur(image)
 
 # Returns the image in a fucking header
-def download_media(media_id):
-    media_url, mime_type = retrieve_media_url(media_id)
+def delete_media(media_id):
+    headers = {
+        "Authorization": f"Bearer {current_app.config['ACCESS_TOKEN']}",
+    }
+    
+    url = f"https://graph.facebook.com/{current_app.config['VERSION']}/{media_id}"
 
+    try:
+        response = requests.delete(
+            url, headers=headers, timeout=10
+        )  # 10 seconds timeout as an example
+        response.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
+    except requests.Timeout:
+        logging.error("Timeout occurred while deleting media")
+        return jsonify({"status": "error", "message": "Request timed out"}), 408
+    except (
+        requests.RequestException
+    ) as e:  # This will catch any general request exception
+        logging.error(f"Request failed due to: {e}")
+        return jsonify({"status": "error", "message": "Failed to delete media"}), 500
+    else:
+        # Return the image
+        logging.info(f"Status: {response.status_code}")
+        logging.info("Media deleted")
+        return response.json()['success']
+    
+# Returns the image in a fucking header
+def download_media(media_url, mime_type):
     headers = {
         "Content-Type": mime_type,
         "Authorization": f"Bearer {current_app.config['ACCESS_TOKEN']}",
     }
 
-    url = media_url
-
     try:
         response = requests.get(
-            url, headers=headers, timeout=10
+            media_url, headers=headers, timeout=10
         )  # 10 seconds timeout as an example
         response.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
     except requests.Timeout:
@@ -126,13 +154,12 @@ def download_media(media_id):
         return jsonify({"status": "error", "message": "Failed to download media"}), 500
     else:
         # Return the image
-        logging.info(f"Status: {response.status_code}")
-        logging.info(f"Headers: {response.headers}")
-        logging.info(f"Content-type: {response.headers.get('content-type')}")
-        logging.info(f"Media File: {True if (response.content and response.content != None) else False}")
-        logging.info(f"Mime Type: {mime_type}")
+        # logging.info(f"Status: {response.status_code}")
+        # logging.info(f"Headers: {response.headers}")
+        # logging.info(f"Content-type: {response.headers.get('content-type')}")
+        # logging.info(f"Media File: {True if (response.content and response.content != None) else False}")
         logging.info("Media downloaded")
-        return response.content, mime_type
+        return response.content
 
 
 # Returns the url and mime type of the media
@@ -161,9 +188,9 @@ def retrieve_media_url(media_id):
         # Return the url
         url = response.json()['url']
         mime_type = response.json()['mime_type']
-        log_http_response(response)
-        logging.info(f"URL: {url}")
-        logging.info(f"Mime Type: {mime_type}")
+        # log_http_response(response)
+        # logging.info(f"URL: {url}")
+        # logging.info(f"Mime Type: {mime_type}")
         logging.info("Media url retrieved")
         return url, mime_type
 
