@@ -65,7 +65,7 @@ def get_mark_as_read(message_id):
 # does the identification
 
 image_width = 1600 # ukuran gambar standar WhatsApp
-blur_threshold = 39.71 # https://colab.research.google.com/drive/1gkUsybQlNrhDQhLNg0pAwnqINuNSqRvk?usp=sharing
+blur_threshold = 88.58 # https://colab.research.google.com/drive/1gkUsybQlNrhDQhLNg0pAwnqINuNSqRvk?usp=sharing
 
 def variance_of_laplacian(image):
     return Laplacian(image, CV_64F).var()
