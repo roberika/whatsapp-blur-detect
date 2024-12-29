@@ -52,11 +52,12 @@ def get_reply_text_message_input(recipient, text, message_id):
         }
     )
 
-def get_mark(message_id, status_type):
+# can't mark as anything other than read
+def get_mark_as_read(message_id):
     return json.dumps(
             {
             "messaging_product": "whatsapp",
-            "status": status_type,
+            "status": "read",
             "message_id": message_id,
         }
     )
@@ -94,27 +95,24 @@ def identify_blur(message_id, media_id):
         if under_100:
             if blur_pages:
                 delete_media(media_id)
-                mark_message(message_id, "failed")
                 return reply_document_blur(blur_pages), message_id
             else:
-                mark_message(message_id, "read")
+                mark_message_as_read(message_id)
                 return reply_document_clear(), message_id
         else:
             if blur_pages:
                 delete_media(media_id)
-                mark_message(message_id, "failed")
                 return reply_document_blur_too_long(blur_pages), message_id
             else:
-                mark_message(message_id, "read")
+                mark_message_as_read(message_id)
                 return reply_document_clear_too_long(), message_id
     # If it is an image type file
     elif ('image' in mime_type):
         if process_image(data):
             delete_media(media_id)
-            mark_message(message_id, "failed")
             return reply_image_blur(), message_id
         else:
-            mark_message(message_id, "read")
+            mark_message_as_read(message_id)
             return reply_image_clear(), message_id
     return reply_unknown(), None
 
@@ -144,7 +142,7 @@ def process_image(data):
 # interfaces with WhatsApp Cloud API
 
 # Marks image as read
-def mark_message(message_id, status_type):
+def mark_message_as_read(message_id):
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {current_app.config['ACCESS_TOKEN']}",
@@ -152,7 +150,7 @@ def mark_message(message_id, status_type):
 
     url = f"https://graph.facebook.com/{current_app.config['VERSION']}/{current_app.config['PHONE_NUMBER_ID']}/messages"
 
-    data = get_mark(message_id, status_type)
+    data = get_mark_as_read(message_id)
 
     try:
         response = requests.post(
@@ -160,17 +158,17 @@ def mark_message(message_id, status_type):
         )  # 10 seconds timeout as an example
         response.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
     except requests.Timeout:
-        logging.error(f"Timeout occurred while marking message as {status_type}")
+        logging.error("Timeout occurred while marking message as read")
         return jsonify({"status": "error", "message": "Request timed out"}), 408
     except (
         requests.RequestException
     ) as e:  # This will catch any general request exception
         logging.error(f"Request failed due to: {e}")
-        return jsonify({"status": "error", "message": f"Failed to mark message as {status_type}"}), 500
+        return jsonify("status": "error", "message": f"Failed to mark message as read"), 500
     else:
         # Return the image
         logging.info(f"Status: {response.status_code}")
-        logging.info(f"Message marked as {status_type}")
+        logging.info("Message marked as read")
         return None
 
 # Deletes the image
