@@ -164,7 +164,7 @@ def mark_message_as_read(message_id):
         requests.RequestException
     ) as e:  # This will catch any general request exception
         logging.error(f"Request failed due to: {e}")
-        return jsonify("status": "error", "message": f"Failed to mark message as read"), 500
+        return jsonify({"status": "error", "message": f"Failed to mark message as read"}), 500
     else:
         # Return the image
         logging.info(f"Status: {response.status_code}")
