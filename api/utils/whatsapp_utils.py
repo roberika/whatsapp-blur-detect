@@ -94,7 +94,7 @@ def identify_blur(message_id, media_id):
         if under_100:
             if blur_pages:
                 delete_media(media_id)
-                mark_message(message_id, "deleted")
+                mark_message(message_id, "failed")
                 return reply_document_blur(blur_pages), message_id
             else:
                 mark_message(message_id, "read")
@@ -102,7 +102,7 @@ def identify_blur(message_id, media_id):
         else:
             if blur_pages:
                 delete_media(media_id)
-                mark_message(message_id, "deleted")
+                mark_message(message_id, "failed")
                 return reply_document_blur_too_long(blur_pages), message_id
             else:
                 mark_message(message_id, "read")
@@ -111,7 +111,7 @@ def identify_blur(message_id, media_id):
     elif ('image' in mime_type):
         if process_image(data):
             delete_media(media_id)
-            mark_message(message_id, "deleted")
+            mark_message(message_id, "failed")
             return reply_image_blur(), message_id
         else:
             mark_message(message_id, "read")
