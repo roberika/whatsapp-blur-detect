@@ -146,6 +146,7 @@ def process_image(data):
 # Marks image as read
 def mark_message(message_id, status_type):
     headers = {
+        "Content-Type": "application/json",
         "Authorization": f"Bearer {current_app.config['ACCESS_TOKEN']}",
     }
     
